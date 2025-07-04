@@ -1,12 +1,14 @@
-package com.example.demo.entity;
+package com.example.demo.form;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import lombok.Data;
 
 @Data
-public class Challenge {
-    private int id;                       // ID
+public class ChallengeUpdateForm {
+    private int id;
+
     private String title;                 // 予定名
     private String risk;                  // リスクの説明
     private String expectedResult;        // 目指す結果
