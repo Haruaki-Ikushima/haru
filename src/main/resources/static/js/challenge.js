@@ -138,39 +138,47 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   //--------------------------------------------------------------------------------------
-  function sendChallengeUpdate(row) {
-    const data = {
-      id: parseInt(row.dataset.id, 10),
-      title: row.querySelector('.challenge-title-input').value,
-      risk: row.querySelector('.challenge-risk-input').value,
-      expectedResult: row.querySelector('.challenge-expected-input').value,
-      strategy: row.querySelector('.challenge-strategy-input').value,
-      actualResult: row.querySelector('.challenge-actual-input').value,
-      improvementPlan: row.querySelector('.challenge-improvement-input').value,
-      challengeLevel: parseInt(row.querySelector('.challenge-level-input').value, 10),
-      challengeDate: row.querySelector('.challenge-date-input').value || null,
-    };
-    fetch('/challenge-update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).then((res) => {
-      if (res.ok) {
-        refreshTotalPoint();
-      }
-    });
-  }
-
-  ['.challenge-title-input', '.challenge-risk-input', '.challenge-expected-input', '.challenge-strategy-input', '.challenge-actual-input', '.challenge-improvement-input'].forEach((selector) => {
+  [
+    '.challenge-title-input',
+    '.challenge-risk-input',
+    '.challenge-expected-input',
+    '.challenge-strategy-input',
+    '.challenge-actual-input',
+    '.challenge-improvement-input',
+    '.challenge-date-input',
+  ].forEach((selector) => {
     document.querySelectorAll(selector).forEach((inp) => {
       const handler = () => {
         const row = inp.closest('tr');
-        if (row) sendChallengeUpdate(row);
+        if (row) sendUpdate(row).then(refreshTotalPoint);
+
+        
       };
       inp.addEventListener('change', handler);
       inp.addEventListener('input', handler);
     });
   });
+
+  function enableFullTextDisplay(selector) {
+    document.querySelectorAll(selector).forEach((inp) => {
+      let originalWidth = '';
+      const adjustWidth = () => {
+        inp.style.width = 'auto';
+        const w = inp.scrollWidth + 4; // some padding
+        inp.style.width = w + 'px';
+      };
+      inp.addEventListener('focus', () => {
+        originalWidth = inp.style.width || inp.offsetWidth + 'px';
+        adjustWidth();
+      });
+      inp.addEventListener('input', adjustWidth);
+      inp.addEventListener('blur', () => {
+        inp.style.width = originalWidth;
+      });
+    });
+  }
+
+  enableFullTextDisplay('.challenge-title-input, .challenge-risk-input, .challenge-expected-input, .challenge-strategy-input, .challenge-actual-input, .challenge-improvement-input');
 
   refreshTotalPoint();
 });

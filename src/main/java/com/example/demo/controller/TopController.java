@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.demo.entity.Schedule;
 import com.example.demo.service.challenge.ChallengeService;
 import com.example.demo.service.schedule.ScheduleService;
+import com.example.demo.service.task.TaskService;
+import com.example.demo.service.awareness.AwarenessRecordService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,8 @@ public class TopController {
 
     private final ScheduleService scheduleService;
     private final ChallengeService challengeService;
+    private final TaskService taskService;
+    private final AwarenessRecordService awarenessRecordService;
 
     @GetMapping("/{username}/task-top")
     public String showTaskTop(@PathVariable String username, Model model, HttpSession session) {
@@ -34,11 +38,21 @@ public class TopController {
         var list = scheduleService.getAllSchedules().stream()
                 .filter(s -> s.getCompletedDay() == null)
                 .toList();
+        System.out.println(list);
         model.addAttribute("schedules", list);
         var challengeList = challengeService.getAllChallenges().stream()
                 .filter(c -> c.getChallengeDate() == null)
                 .toList();
         model.addAttribute("challenges", challengeList);
+        var taskList = taskService.getAllTasks().stream()
+                .filter(t -> t.getCompletedAt() == null)
+                .toList();
+        model.addAttribute("tasks", taskList);
+        var awarenessList = awarenessRecordService.getAllRecords()
+                .stream()
+                .limit(5)
+                .toList();
+        model.addAttribute("awarenessRecords", awarenessList);
         model.addAttribute("username", username);
         return "task-top";
     }
@@ -82,11 +96,48 @@ public class TopController {
         model.addAttribute("username", username);
         return "challenge-box";
     }
+
+    @GetMapping("/{username}/task-top/task-box")
+    public String showTaskBoxPage(@PathVariable String username, Model model, HttpSession session) {
+        String loginUser = (String) session.getAttribute("loginUser");
+        if (loginUser == null || !loginUser.equals(username)) {
+            return "redirect:/log-in";
+        }
+        log.debug("Displaying task box page");
+        var all = taskService.getAllTasks();
+        var uncompleted = all.stream()
+                .filter(t -> t.getCompletedAt() == null)
+                .toList();
+        var completedTasks = all.stream()
+                .filter(t -> t.getCompletedAt() != null)
+                .toList();
+        model.addAttribute("uncompletedTasks", uncompleted);
+        model.addAttribute("completedTasks", completedTasks);
+        model.addAttribute("username", username);
+        return "task-box";
+    }
+
+    @GetMapping("/{username}/task-top/awareness-box")
+    public String showAwarenessBox(@PathVariable String username, Model model, HttpSession session) {
+        String loginUser = (String) session.getAttribute("loginUser");
+        if (loginUser == null || !loginUser.equals(username)) {
+            return "redirect:/log-in";
+        }
+        log.debug("Displaying awareness box page");
+        var records = awarenessRecordService.getAllRecords();
+        model.addAttribute("awarenessRecords", records);
+        model.addAttribute("username", username);
+        return "awareness-box";
+    }
     //-------------------------------------------------------------------------------------------------
-   @GetMapping("/total-point")
-   @ResponseBody
-   public Integer getTotalPoint() {
-       log.debug("Fetching total completed points");
-       return scheduleService.getTotalCompletedPoints();//@ResponseBodyによって，htmlではなく，interger型のデータ（ポイント）をreturn
-   }
+    @GetMapping("/total-point")
+    @ResponseBody
+    public Double getTotalPoint() {
+        log.debug("Fetching total completed points");
+        int schedulePoints = scheduleService.getTotalCompletedPoints();
+        int challengePoints = challengeService.getTotalCompletedPoints();
+        int taskPoints = taskService.getTotalCompletedLevels();
+        int awareness = awarenessRecordService.getTotalAwarenessLevel();
+        return schedulePoints + challengePoints + taskPoints + awareness * 0.5;
+    }
 }

@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Schedule;
-import com.example.demo.form.ScheduleUpdateForm;
 import com.example.demo.repository.schedule.ScheduleRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -43,6 +42,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             long mins = rounded % 60;//分
             s.setTimeUntilStart(String.format("%d日%d時間%d分", days, hours, mins));
         }
+        
         return list;
     }
 
@@ -53,9 +53,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void updateSchedule(ScheduleUpdateForm form) {
-        log.debug("Updating schedule id {} - {} on {}", form.getId(), form.getTitle(), form.getScheduleDate());
-        repository.updateSchedule(form);
+    public void updateSchedule(Schedule schedule) {
+        log.debug("Updating schedule id {} - {} on {}", schedule.getId(), schedule.getTitle(), schedule.getScheduleDate());
+        repository.updateSchedule(schedule);
     }
 
     @Override
