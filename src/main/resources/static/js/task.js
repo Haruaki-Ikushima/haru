@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
   enableFullTextDisplay('.task-title-input, .task-result-input, .task-detail-input');
-  refreshTotalPoint();
 
   //タスク新規のボタンを押されたら、
   const newButton = document.getElementById('new-task-button');
@@ -18,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const uncompletedTable = document.getElementById('uncompleted-task-table');
   const completedTable = document.getElementById('completed-task-table');
   const pointDisplay = document.getElementById('total-point-display');
+
+  refreshTotalPoint();
 
   //各データベースのすべてのポイントを取得（task-top.htmlで表示用）
   function refreshTotalPoint() {
@@ -192,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  //削除ボタンが押されたら
   document.querySelectorAll('.task-delete-button').forEach((btn) => {
     btn.addEventListener('click', () => {
       const row = btn.closest('tr');
@@ -202,9 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: parseInt(id, 10) }),
         keepalive: true,
+        // }).then(() => location.reload());
       }).then(() => {
         row.remove();
         refreshTotalPoint();
+        // location.reload();
       });
     });
   });
