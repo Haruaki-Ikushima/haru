@@ -14,6 +14,7 @@ import com.example.demo.service.challenge.ChallengeService;
 import com.example.demo.service.schedule.ScheduleService;
 import com.example.demo.service.task.TaskService;
 import com.example.demo.service.awareness.AwarenessRecordService;
+import com.example.demo.service.word.WordRecordService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class TopController {
     private final ChallengeService challengeService;
     private final TaskService taskService;
     private final AwarenessRecordService awarenessRecordService;
+    private final WordRecordService wordRecordService;
 
     @GetMapping("/{username}/task-top")
     public String showTaskTop(@PathVariable String username, Model model, HttpSession session) {
@@ -53,6 +55,11 @@ public class TopController {
                 .limit(5)
                 .toList();
         model.addAttribute("awarenessRecords", awarenessList);
+        var wordList = wordRecordService.getAllRecords()
+                .stream()
+                .limit(5)
+                .toList();
+        model.addAttribute("wordRecords", wordList);
         model.addAttribute("username", username);
         return "task-top";
     }
@@ -129,6 +136,19 @@ public class TopController {
         model.addAttribute("username", username);
         return "awareness-box";
     }
+
+    @GetMapping("/{username}/task-top/word-box")
+    public String showWordBox(@PathVariable String username, Model model, HttpSession session) {
+        String loginUser = (String) session.getAttribute("loginUser");
+        if (loginUser == null || !loginUser.equals(username)) {
+            return "redirect:/log-in";
+        }
+        log.debug("Displaying word box page");
+        var records = wordRecordService.getAllRecords();
+        model.addAttribute("wordRecords", records);
+        model.addAttribute("username", username);
+        return "word-box";
+    }
     //-------------------------------------------------------------------------------------------------
     @GetMapping("/total-point")
     @ResponseBody
@@ -138,6 +158,7 @@ public class TopController {
         int challengePoints = challengeService.getTotalCompletedPoints();
         int taskPoints = taskService.getTotalCompletedLevels();
         int awareness = awarenessRecordService.getTotalAwarenessLevel();
-        return schedulePoints + challengePoints + taskPoints + awareness * 0.5;
+        int wordCount = wordRecordService.countRecords();
+        return schedulePoints + challengePoints + taskPoints + awareness * 0.5 + wordCount * 0.5;
     }
 }

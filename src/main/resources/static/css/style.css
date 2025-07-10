@@ -35,6 +35,38 @@ body.task-body {
   margin-top: -60px;
 }
 
+.database-row {
+  margin-left: 200px;
+  margin-top: -60px;
+  display: flex;
+  gap: 40px;
+  align-items: flex-end;
+}
+
+.database-row .database-container {
+  margin: 0;
+}
+
+/* spacing between task table and awareness/word tables */
+.database-container + .database-row {
+  margin-top: 40px;
+}
+
+/* unify header height for awareness and word tables */
+.awareness-database th,
+.word-database th {
+  height: 32px;
+}
+
+/* ensure cells in awareness/word tables use the same height */
+.awareness-database td input,
+.awareness-database td select,
+.word-database td input {
+  height: 24px;
+  line-height: 24px;
+  box-sizing: border-box;
+}
+
 #new-schedule-button {
   /* 新規ボタン */
   /* margin-top: 10px; 相対位置*/
@@ -71,6 +103,12 @@ body.task-body {
 #new-awareness-button {
   position: fixed;
   top: 400px;
+  left: 50px;
+}
+
+#new-word-button {
+  position: fixed;
+  top: 440px;
   left: 50px;
 }
 
@@ -307,6 +345,8 @@ td {
   margin: 0 auto; /* 横中央寄せ */
   padding: 10px; /* 要素の内側の余白 */
   box-sizing: border-box; /* 例えばwidth: 300px;でpadding: 10px;の場合、実際のコンテンツ領域は 300 - 10*2 = 280px となり、全体幅は300pxに収まる */
+  display: flex; /* 子要素を中央に配置 */
+  justify-content: center;
 }
 
 #task-page-content {
